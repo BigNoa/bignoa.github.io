@@ -1,0 +1,36 @@
+<!doctype html>
+<html lang="pt-BR">
+	<head>
+		<meta charset="utf-8" />
+		<meta name="viewport" content="width=device-width, initial-scale=1" />
+		<meta name="text-scale" content="scale" />
+		<!--
+			Aplica a classe de tema antes da hidratação, pra evitar flash de tema errado.
+			A chave 'bignoa-theme' é duplicada de THEME_STORAGE_KEY em src/lib/theme.ts de
+			propósito: este script roda antes de qualquer bundle JS, então não pode importar nada.
+		-->
+		<script>
+			(function () {
+				var theme = 'light';
+				try {
+					var stored = localStorage.getItem('bignoa-theme');
+					if (stored === 'light' || stored === 'dark') theme = stored;
+					else if (window.matchMedia('(prefers-color-scheme: dark)').matches) theme = 'dark';
+				} catch (e) {
+					if (window.matchMedia('(prefers-color-scheme: dark)').matches) theme = 'dark';
+				}
+				document.documentElement.classList.toggle('dark', theme === 'dark');
+			})();
+		</script>
+		<link rel="preconnect" href="https://fonts.googleapis.com" />
+		<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin="anonymous" />
+		<link
+			href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&family=Geist+Mono:wght@400;500&display=swap"
+			rel="stylesheet"
+		/>
+		%sveltekit.head%
+	</head>
+	<body data-sveltekit-preload-data="hover" class="bg-bg text-fg">
+		<div style="display: contents">%sveltekit.body%</div>
+	</body>
+</html>
