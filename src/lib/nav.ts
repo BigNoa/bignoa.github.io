@@ -68,6 +68,7 @@ export const scripts = [
 export const gettingStartedKeys = [
 	'downloadPurchase',
 	'dependencies',
+	'recommendedHosting',
 	'translations',
 	'escrowErrors'
 ] as const;

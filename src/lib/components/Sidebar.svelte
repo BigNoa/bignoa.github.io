@@ -19,6 +19,7 @@
 	import { searchState } from '$lib/searchStore.svelte';
 	import { localeFromPathname, messagesFor } from '$lib/i18n';
 	import Logo from '$lib/components/Logo.svelte';
+	import RocketNodeBanner from '$lib/components/RocketNodeBanner.svelte';
 
 	let {
 		open = $bindable(false),
@@ -207,6 +208,7 @@
 		</nav>
 
 		<div class="shrink-0 space-y-0.5 px-5 py-4">
+			<RocketNodeBanner />
 			{#each footerLinks as link (link.label)}
 				<a
 					href={link.href}

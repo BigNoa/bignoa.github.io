@@ -13,6 +13,7 @@ export const pt: Messages = {
 	gettingStartedLabels: {
 		downloadPurchase: { slug: 'download-da-compra', label: 'Download da Compra' },
 		dependencies: { slug: 'dependencias', label: 'Dependências' },
+		recommendedHosting: { slug: 'hospedagem-recomendada', label: 'Hospedagem Recomendada' },
 		translations: { slug: 'traducoes', label: 'Traduções' },
 		escrowErrors: { slug: 'erros-de-escrow', label: 'Erros de Escrow do FiveM' }
 	},
