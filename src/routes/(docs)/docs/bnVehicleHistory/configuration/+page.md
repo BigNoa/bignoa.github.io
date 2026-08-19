@@ -13,8 +13,8 @@ Everything lives in a single `config.lua`.
 ```lua
 Config = {}
 
--- 'esx' | 'qbcore' | 'qbox' | 'standalone'. Leave 'standalone' if unsure, bridge/standalone.lua
--- auto-falls-back to it when the configured framework isn't running.
+-- 'esx' | 'qbcore' | 'qbox'. Anything else falls back automatically to standalone
+-- mode (bridge/standalone.lua), see Installation > Choosing a framework.
 Config.Framework = 'qbox'
 
 -- Script language: 'pt' or 'en'
@@ -63,21 +63,6 @@ Config.DocumentDisplaySeconds = 15
 <code>Config.EnableTarget</code> only takes effect if <code>ox_target</code> is actually running. It's not a hard dependency, the option is simply ignored otherwise.
 </Alert>
 
-## Discord webhook
-
-Kept out of `config.lua` on purpose. It's server-only, so the URL never ships to the client. Edit `server/webhook.lua`:
-
-```lua
--- Discord webhook for the audit log (spec review, accident, repair, inspection,
--- ownership transfer, document print). Leave blank to disable.
-Config.DiscordWebhook = ''
-
--- Avatar/footer icon for the log embed. Leave blank for Discord's default avatar.
-Config.DiscordWebhookAvatarUrl = 'https://iili.io/CYdA2ou.png'
-```
-
-Every log embed includes the plate, the acting player's name/identifier and job (or "system" for trusted export calls with no `source`), plus action-specific fields. Denied attempts (a player without permission trying to use a command) are logged too, in red.
-
 ## Repair categories
 
 `/logrepair` and `RecordRepair` require one of a fixed set of categories, used to group service history in the NUI:
@@ -86,8 +71,8 @@ Every log embed includes the plate, the acting player's name/identifier and job 
 
 Omitting a category on a trusted export call (no `source`) defaults to `outro`.
 
-## Automatic ownership sync
+## Where the rest lives
 
-`RegisterVehicle`/`TransferOwnership` (see [Exports](/docs/bnVehicleHistory/exports)) are optional pushes. On every lookup (`/vehiclehistory`, `/reportaccident`, `/logrepair`, `/loginspection`, mileage sync), bnVehicleHistory also reads the framework's own live vehicle table (`player_vehicles.citizenid` on QBCore/Qbox, `owned_vehicles.owner` on ESX) and self-heals `bn_vh_vehicles` if it disagrees or the plate has never been seen before.
-
-This covers dealership/marketplace scripts that write ownership directly (e.g. `qbx_vehiclesales`, `esx_vehicleshop`) without you having to hook every one of them individually. Standalone mode has no such table, so it relies entirely on the manual exports.
+- Job lists here (`Config.MechanicJobs`, `Config.PoliceJobs`) decide *who*, see [Commands & Permissions](/docs/bnVehicleHistory/commands) for the full access matrix.
+- Discord webhook, the `vehicle_document` item, and `ox_target` setup are covered in [Integrations](/docs/bnVehicleHistory/integrations).
+- What actually happens with these settings (mileage sync math, accident detection, spec review, automatic ownership sync) is covered in [Systems & Features](/docs/bnVehicleHistory/features).

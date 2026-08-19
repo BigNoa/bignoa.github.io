@@ -13,8 +13,8 @@ Tudo fica em um único `config.lua`.
 ```lua
 Config = {}
 
--- 'esx' | 'qbcore' | 'qbox' | 'standalone'. Deixe 'standalone' se estiver em dúvida, o
--- bridge/standalone.lua cai automaticamente pra ele se o framework configurado não estiver rodando.
+-- 'esx' | 'qbcore' | 'qbox'. Qualquer outro valor cai automaticamente pro modo
+-- standalone (bridge/standalone.lua), veja Instalação > Escolhendo um framework.
 Config.Framework = 'qbox'
 
 -- Idioma do script: 'pt' ou 'en'
@@ -63,21 +63,6 @@ Config.DocumentDisplaySeconds = 15
 <code>Config.EnableTarget</code> só faz efeito se o <code>ox_target</code> estiver realmente rodando. Não é uma dependência obrigatória, a opção simplesmente é ignorada caso contrário.
 </Alert>
 
-## Webhook do Discord
-
-Fica de propósito fora do `config.lua`. É server-only, então a URL nunca vai pro client. Edite o `server/webhook.lua`:
-
-```lua
--- Webhook do Discord pro log de auditoria (revisão de spec, acidente, reparo, inspeção,
--- transferência de propriedade, impressão de documento). Deixe vazio pra desabilitar.
-Config.DiscordWebhook = ''
-
--- Ícone de avatar/rodapé do embed de log. Deixe vazio pro avatar padrão do Discord.
-Config.DiscordWebhookAvatarUrl = 'https://iili.io/CYdA2ou.png'
-```
-
-Todo embed de log inclui a placa, o nome/identificador e job do jogador que fez a ação (ou "system" pra chamadas de export confiáveis sem `source`), mais campos específicos da ação. Tentativas negadas (jogador sem permissão tentando usar um comando) também são logadas, em vermelho.
-
 ## Categorias de reparo
 
 `/logrepair` e `RecordRepair` exigem uma categoria de um conjunto fixo, usada pra agrupar o histórico de serviço na NUI:
@@ -86,8 +71,8 @@ Todo embed de log inclui a placa, o nome/identificador e job do jogador que fez 
 
 Omitir a categoria numa chamada de export confiável (sem `source`) usa `outro` como padrão.
 
-## Sincronização automática de propriedade
+## Onde fica o resto
 
-`RegisterVehicle`/`TransferOwnership` (veja [Exports](/pt/docs/bnVehicleHistory/exports)) são envios opcionais. Em toda consulta (`/vehiclehistory`, `/reportaccident`, `/logrepair`, `/loginspection`, sync de quilometragem), o bnVehicleHistory também lê a tabela de veículos ao vivo do próprio framework (`player_vehicles.citizenid` no QBCore/Qbox, `owned_vehicles.owner` no ESX) e se autocorrige na `bn_vh_vehicles` caso ela esteja divergente ou a placa nunca tenha sido vista antes.
-
-Isso cobre scripts de concessionária/marketplace que escrevem a propriedade diretamente (ex: `qbx_vehiclesales`, `esx_vehicleshop`) sem você precisar conectar cada um deles manualmente. O modo Standalone não tem essa tabela, então depende inteiramente dos exports manuais.
+- As listas de job aqui (`Config.MechanicJobs`, `Config.PoliceJobs`) decidem *quem*, veja [Comandos e Permissões](/pt/docs/bnVehicleHistory/comandos) pra matriz completa de acesso.
+- Webhook do Discord, item `vehicle_document` e configuração do `ox_target` estão em [Integrações](/pt/docs/bnVehicleHistory/integracoes).
+- O que de fato acontece com essas configurações (matemática do sync de quilometragem, detecção de acidente, revisão de spec, sincronização automática de propriedade) está em [Sistemas e Recursos](/pt/docs/bnVehicleHistory/recursos).

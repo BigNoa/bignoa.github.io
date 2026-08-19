@@ -4,12 +4,11 @@ title: bnVehicleHistory - Installation
 
 <script>
   import Alert from '$lib/components/Alert.svelte';
-  import TabGroup from '$lib/components/TabGroup.svelte';
 </script>
 
 # Installation
 
-Full vehicle history tracking (owners, mileage, accidents, repairs, and inspections) with a searchable NUI gated by role (owner / mechanic / police).
+Full vehicle history tracking (owners, mileage, accidents, repairs, inspections, and spec/tuning review) with a searchable NUI gated by role (owner / mechanic / police).
 
 1. Copy `bnVehicleHistory` into your `resources` folder, keeping the folder name as-is.
 2. Add to `server.cfg`, respecting the load order:
@@ -31,6 +30,7 @@ Schema migrations use <code>ALTER TABLE ... ADD COLUMN IF NOT EXISTS</code>, a M
 ```sql
 ALTER TABLE bn_vh_vehicles ADD COLUMN `model` VARCHAR(50) DEFAULT NULL;
 ALTER TABLE bn_vh_vehicles ADD COLUMN `last_known_health` FLOAT DEFAULT NULL;
+ALTER TABLE bn_vh_vehicles ADD COLUMN `declared_spec` TEXT DEFAULT NULL;
 ALTER TABLE bn_vh_repairs ADD COLUMN `category` VARCHAR(30) DEFAULT NULL;
 ```
 </Alert>
@@ -42,41 +42,14 @@ ALTER TABLE bn_vh_repairs ADD COLUMN `category` VARCHAR(30) DEFAULT NULL;
 restart bnVehicleHistory
 ```
 
-## Vehicle document item
-
-The "Print" button on the Documentos tab gives the player a `vehicle_document` item (metadata carries the plate) instead of doing a browser print. Using the item shows a compact document card in the corner of the screen (no tablet UI, no NUI focus) for `Config.DocumentDisplaySeconds`, then it auto-hides.
-
-Add the item to your inventory once. These files are reference only, copy the relevant one into your own inventory resource:
-
-<TabGroup tabs={[{ id: 'ox', label: 'ox_inventory' }, { id: 'qbcore', label: 'QBCore' }, { id: 'esx', label: 'ESX' }]}>
-{#snippet children(active)}
-{#if active === 'ox'}
-Auto-detected and preferred if `ox_inventory` is running. Add to `ox_inventory/data/items.lua`:
+## Choosing a framework
 
 ```lua
-['vehicle_document'] = {
-    label = 'Vehicle document',
-    weight = 10,
-    stack = false,
-    close = true,
-},
+Config.Framework = 'qbox' -- 'esx' | 'qbcore' | 'qbox'
 ```
-{:else if active === 'qbcore'}
-Used as a fallback when `ox_inventory` isn't running. Add to `qb-core/shared/items.lua` (or qbx-core's items table):
 
-```lua
-['vehicle_document'] = { name = 'vehicle_document', label = 'Vehicle document', weight = 10, type = 'item', image = 'document.png', unique = false, useable = true, shouldClose = true },
-```
-{:else}
-Legacy ESX has no `shared/items.lua`. Items are registered in the `items` MySQL table instead. Run once against your database:
+Only these three values are recognized. Anything else, including an empty string or `'standalone'`, makes `bridge/standalone.lua` take over automatically (it prints a warning to the server console when that happens). Standalone mode has no job/identity system and no native inventory, ownership then relies entirely on the exports in [Exports](/docs/bnVehicleHistory/exports) instead of the automatic framework sync described in [Systems & Features](/docs/bnVehicleHistory/features).
 
-```sql
-INSERT INTO `items` (`name`, `label`) VALUES ('vehicle_document', 'Vehicle document');
-```
-{/if}
-{/snippet}
-</TabGroup>
+## Next steps
 
-<Alert type="info" title="ESX and Standalone limitations">
-ESX without <code>ox_inventory</code> has no per-item metadata, so it falls back to remembering only the most recently printed plate per player, fine for one document at a time, not for holding several at once. Standalone has no inventory at all, so printing just reopens the document immediately.
-</Alert>
+Once it's running, head to [Integrations](/docs/bnVehicleHistory/integrations) to register the `vehicle_document` item and wire up `ox_target`/Discord, and [Commands & Permissions](/docs/bnVehicleHistory/commands) to set who can do what.

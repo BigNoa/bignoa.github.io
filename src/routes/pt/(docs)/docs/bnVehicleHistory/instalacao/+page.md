@@ -4,12 +4,11 @@ title: bnVehicleHistory - Instalação
 
 <script>
   import Alert from '$lib/components/Alert.svelte';
-  import TabGroup from '$lib/components/TabGroup.svelte';
 </script>
 
 # Instalação
 
-Histórico completo de veículos (donos, quilometragem, acidentes, reparos e inspeções) com uma NUI pesquisável restrita por papel (dono / mecânico / polícia).
+Histórico completo de veículos (donos, quilometragem, acidentes, reparos, inspeções e revisão de spec/tuning) com uma NUI pesquisável restrita por papel (dono / mecânico / polícia).
 
 1. Copie o `bnVehicleHistory` pra sua pasta `resources`, mantendo o nome da pasta como está.
 2. Adicione ao `server.cfg`, respeitando a ordem de carregamento:
@@ -31,6 +30,7 @@ As migrações de schema usam <code>ALTER TABLE ... ADD COLUMN IF NOT EXISTS</co
 ```sql
 ALTER TABLE bn_vh_vehicles ADD COLUMN `model` VARCHAR(50) DEFAULT NULL;
 ALTER TABLE bn_vh_vehicles ADD COLUMN `last_known_health` FLOAT DEFAULT NULL;
+ALTER TABLE bn_vh_vehicles ADD COLUMN `declared_spec` TEXT DEFAULT NULL;
 ALTER TABLE bn_vh_repairs ADD COLUMN `category` VARCHAR(30) DEFAULT NULL;
 ```
 </Alert>
@@ -42,41 +42,14 @@ ALTER TABLE bn_vh_repairs ADD COLUMN `category` VARCHAR(30) DEFAULT NULL;
 restart bnVehicleHistory
 ```
 
-## Item de documento do veículo
-
-O botão "Imprimir" na aba Documentos dá ao jogador um item `vehicle_document` (a metadata carrega a placa) em vez de fazer um print pelo navegador. Usar o item mostra um card compacto do documento no canto da tela (sem UI de tablet, sem foco de NUI) por `Config.DocumentDisplaySeconds`, depois some sozinho.
-
-Adicione o item ao seu inventário uma vez. Esses arquivos são só referência, copie o que for relevante pro seu resource de inventário:
-
-<TabGroup tabs={[{ id: 'ox', label: 'ox_inventory' }, { id: 'qbcore', label: 'QBCore' }, { id: 'esx', label: 'ESX' }]}>
-{#snippet children(active)}
-{#if active === 'ox'}
-Detectado e preferido automaticamente se o `ox_inventory` estiver rodando. Adicione ao `ox_inventory/data/items.lua`:
+## Escolhendo um framework
 
 ```lua
-['vehicle_document'] = {
-    label = 'Documento do veículo',
-    weight = 10,
-    stack = false,
-    close = true,
-},
+Config.Framework = 'qbox' -- 'esx' | 'qbcore' | 'qbox'
 ```
-{:else if active === 'qbcore'}
-Usado como fallback quando o `ox_inventory` não está rodando. Adicione ao `qb-core/shared/items.lua` (ou à tabela de itens do qbx-core):
 
-```lua
-['vehicle_document'] = { name = 'vehicle_document', label = 'Documento do veículo', weight = 10, type = 'item', image = 'document.png', unique = false, useable = true, shouldClose = true },
-```
-{:else}
-O ESX legado não tem `shared/items.lua`. Itens são registrados na tabela `items` do MySQL. Rode uma vez no seu banco:
+Só esses três valores são reconhecidos. Qualquer outra coisa, incluindo string vazia ou `'standalone'`, faz o `bridge/standalone.lua` assumir automaticamente (ele imprime um aviso no console do servidor quando isso acontece). O modo Standalone não tem sistema de job/identidade nem inventário nativo, a propriedade passa a depender inteiramente dos exports em [Exports](/pt/docs/bnVehicleHistory/exports) em vez da sincronização automática com o framework descrita em [Sistemas e Recursos](/pt/docs/bnVehicleHistory/recursos).
 
-```sql
-INSERT INTO `items` (`name`, `label`) VALUES ('vehicle_document', 'Documento do veículo');
-```
-{/if}
-{/snippet}
-</TabGroup>
+## Próximos passos
 
-<Alert type="info" title="Limitações no ESX e Standalone">
-ESX sem <code>ox_inventory</code> não tem metadata por item, então o sistema cai pra lembrar só a última placa impressa por jogador, funciona pra um documento por vez, não pra guardar vários. Standalone não tem inventário nenhum, então imprimir só reabre o documento na hora.
-</Alert>
+Depois de rodando, vá em [Integrações](/pt/docs/bnVehicleHistory/integracoes) pra registrar o item `vehicle_document` e configurar `ox_target`/Discord, e em [Comandos e Permissões](/pt/docs/bnVehicleHistory/comandos) pra definir quem pode fazer o quê.

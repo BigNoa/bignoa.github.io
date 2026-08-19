@@ -61,7 +61,18 @@ export const scripts = [
 		version: '1.0.0',
 		frameworks: ['ESX', 'QBCore', 'Qbox', 'Standalone'],
 		image: '/scripts/bnVehicleHistory.png',
-		sections: defaultSections
+		// Mirrors the real depth of the script (permissions model, NUI tabs, spec review,
+		// anti-spam layer, DB schema): the 4-section default flattens all of that into one page.
+		sections: [
+			'installation',
+			'configuration',
+			'commands',
+			'features',
+			'integrations',
+			'exports',
+			'troubleshooting',
+			'changelog'
+		]
 	}
 ] as const;
 
